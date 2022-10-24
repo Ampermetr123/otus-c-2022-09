@@ -61,6 +61,7 @@ def main():
     with open(ouput_file, "wt") as of:
         of.writelines(["#pragma once\n\n",
                        "/* This file was automatically generated with conv.py utility */\n\n"])
+        of.write("// Data begin with 0x80 code: cp_data[some_code_page][0] = unicode_for_char_0x80\n")
         of.write("static unsigned int cp_data [][128] = {\n")
         charmaps = []
         for file in files:
@@ -75,7 +76,7 @@ def main():
                 of.write(ar_str)
                 charmaps.append(name)
 
-        of.write('};\n\n')
+        of.write('\n};\n\n')
         of.write('static const char* cp_names[] = {  // ')
         for s in charmaps:
             of.write(f',\n  "{s}"')

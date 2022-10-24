@@ -1,22 +1,19 @@
 #include <errno.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "charset.h"
-
-#define SIZEOFF(ARR) (sizeof(ARR) / sizeof(ARR[0]))
-#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+#include "charset.h" // generated with conv.py
 
 
 int main(int argc, char **argv) {
+  // Parse program arguments
   if (argc < 4) {
     puts("Convert code-paged text file to utf8.\n"
-           "Usage:\n\tcp2utf8 <cp-file-in> <code-page> <out-file>\n"
-           "Code pages supported:");
+         "Usage:\n\tcp2utf8 <cp-file-in> <code-page> <out-file>\n"
+         "Code pages supported:");
     for (size_t i = 0; i < cp_size; i++) {
-      printf("\t%s\n",cp_names[i]);
+      printf("\t%s\n", cp_names[i]);
     }
     return EXIT_FAILURE;
   }
@@ -25,37 +22,36 @@ int main(int argc, char **argv) {
   const char *out_file_path = argv[3];
 
   // Search for charset
-
   size_t cp_index = 0;
   while (cp_index < cp_size) {
-    if (strncmp(code_page_name, cp_names[cp_index], max_cp_name_len) == 0){
+    if (strncmp(code_page_name, cp_names[cp_index], max_cp_name_len) == 0) {
       break;
     }
     cp_index++;
   }
-
   if (cp_index == cp_size) {
-    fprintf(stderr, "Error: code-page is not supported\n Run witout args to see supported code-pages\n");
+    fprintf(stderr,
+            "Error: code-page is not supported\n Run witout args to see supported code-pages\n");
     return EXIT_FAILURE;
   }
 
+  // Open files
   FILE *fin = fopen(inp_file_path, "rb");
   if (!fin) {
     fprintf(stderr, "%s - io error: %s\n", inp_file_path, strerror(errno));
     return EXIT_FAILURE;
   }
-
   FILE *fout = fopen(out_file_path, "wb");
   if (!fout) {
-    fprintf(stderr, "%s - io error: %s\n", inp_file_path, strerror(errno));
+    fprintf(stderr, "%s - io error: %s\n", out_file_path, strerror(errno));
     fclose(fin);
     return EXIT_FAILURE;
   }
 
+  // Converting
   int ch;
-  const unsigned int *cp = cp_data[cp_index];
   int io_result = 0;
-
+  const unsigned int *cp = cp_data[cp_index];
   while ((ch = fgetc(fin)) != EOF && io_result != EOF) {
     if (ch < 0x80) {
       io_result = fputc(ch, fout);
@@ -79,5 +75,5 @@ int main(int argc, char **argv) {
   }
   fclose(fin);
   fclose(fout);
-  return io_result == EOF ? EXIT_FAILURE :EXIT_SUCCESS;
+  return io_result == EOF ? EXIT_FAILURE : EXIT_SUCCESS;
 }
