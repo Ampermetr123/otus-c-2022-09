@@ -1,9 +1,9 @@
 /*******************************************************************************
  *             АДАПТАЦИЯ ДЛЯ КАРТЫ  (CONST CHAR* -> INTMAX_T)                  *
  *******************************************************************************/
-#include <string.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef MAP_MAX_KEY_LENGTH
 #define MAP_MAX_KEY_LENGTH 8096
@@ -16,10 +16,9 @@
 static bool map_key_compare(const char *ls, const char *rs) {
   if (ls == rs)
     return true;
-  else if (ls == NULL || rs == NULL)
+  if (ls == NULL || rs == NULL)
     return false;
-  else
-    return strncmp(ls, rs, MAP_MAX_KEY_LENGTH) == 0;
+  return strncmp(ls, rs, MAP_MAX_KEY_LENGTH) == 0;
 }
 
 
@@ -30,7 +29,7 @@ static MapEntry *map_create_entry(const char *rs, intmax_t val) {
   if (pstr == NULL) {
     return NULL;
   }
-  memcpy(pstr, rs, len);
+  memcpy(pstr, rs, len); // NOLINT : dest size is checked
   pstr[len] = '\0';
 
   MapEntry *pe = (MapEntry *)malloc(sizeof(MapEntry));

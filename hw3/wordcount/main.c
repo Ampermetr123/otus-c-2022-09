@@ -1,12 +1,12 @@
-#include "maplib.h"
 #include "hash.h"
+#include "maplib.h"
 
 #include <assert.h>
 #include <ctype.h>
 #include <locale.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -27,40 +27,47 @@ int main(int argc, char **argv) {
 
   Map *map = map_new(pearson_hash32);
   if (!map) {
-    puts("Interanl error on creating hash table\n");
+    puts("Internal error on creating map\n");
+    fclose(fp);
     return EXIT_FAILURE;
   }
 
   char word[MAP_MAX_KEY_LENGTH];
   size_t len = 0;
   int ch;
-  while ((ch = fgetc(fp)) != EOF && len < MAP_MAX_KEY_LENGTH-1) {
+  while ((ch = fgetc(fp)) != EOF && len < MAP_MAX_KEY_LENGTH - 1) {
     if (isprint(ch) && !isspace(ch)) {
       word[len] = (char)ch;
       len++;
-    } else if (len>0) {
+    } else if (len > 0) {
       word[len] = '\0';
       intmax_t *val = map_find(map, word);
       if (val == NULL) {
         if (!map_insert(map, word, 1)) {
           puts("Error on map_insert\n");
+          fclose(fp);
           return EXIT_FAILURE;
         }
       } else {
         *val += 1;
       }
-      len = 0; 
+      len = 0;
     }
   }
+  fclose(fp);
 
   for (MapIter it = map_iter_begin(map); it != map_iter_end(); it = map_iter_next(map, it)) {
     MapEntry *me = map_iter_get(map, it);
+    if (!me) {
+      puts("Interanl error on map iterators\n");
+      return EXIT_FAILURE;
+    }
     printf("%s -> %ld \n", me->key, me->val);
   }
 
   printf("-----------------------------------------------------\nTotal unique words: %ld\n",
          map_count(map));
-  
+
   map_destroy(&map);
 
   return 0;

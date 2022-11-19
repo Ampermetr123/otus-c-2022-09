@@ -2,6 +2,20 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#ifndef MAP_INIT_SIZE
+#define MAP_INIT_SIZE 32
+#endif
+#ifndef MAP_LOAD_FACTOR
+#define MAP_LOAD_FACTOR 0.45f
+#endif
+#ifndef MAP_RESIZE_FACTOR
+#define MAP_RESIZE_FACTOR 2.0f
+#endif
+
+typedef bool (*KeyCompareFunc)(MapKey, MapKey); /// return true if keys are equal
+typedef MapEntry *(*CreateEntryFunc)(MapKey key, MapVal val); 
+typedef void (*FreeEntryFunc)(MapEntry *pkv);
+
 struct Map {
   HashFunc hash_func;
   KeyCompareFunc cmp_func;
@@ -14,7 +28,6 @@ struct Map {
   size_t count_limit; // по превышению, выполняется рехеширование
   MapEntry *removed_entry; // используем для пометки удаленных ключей
 };
-
 
 Map *map_new_impl(HashFunc hash_func, KeyCompareFunc cmp_func, CreateEntryFunc create_func,
                   FreeEntryFunc free_func) {
@@ -55,10 +68,21 @@ Map *map_new_impl(HashFunc hash_func, KeyCompareFunc cmp_func, CreateEntryFunc c
   pmap->data_size = MAP_INIT_SIZE;
   pmap->data = (MapEntry **)(pdata);
   pmap->count = 0;
+  pmap->stored_count = 0;
   pmap->count_limit = MAP_INIT_SIZE * MAP_LOAD_FACTOR;
   return pmap;
 }
 
+// Implementation specific map functions
+// KeyCompareFunc, CreateEntryFunc, FreeEntryFunc
+#if MAP_TYPE == STR_TO_INTMAX
+#include "map_str_int.h"
+#else
+#error You need to define coorect map type!
+#endif
+Map *map_new(HashFunc hash_func) {
+  return map_new_impl(hash_func, map_key_compare, map_create_entry, map_free_entry);
+}
 
 static inline size_t map_index(uint32_t hashcode, size_t probe, size_t modul) {
   size_t h1 = hashcode % modul;
@@ -75,7 +99,8 @@ static MapEntry** map_find_entry(Map *map, MapKey key) {
   while (i = map_index(hash, probe++, map->data_size), map->data[i] != NULL) {
     if (map->data[i] == map->removed_entry) {
       continue;
-    } else if (map->cmp_func(map->data[i]->key, key)) {
+    } 
+    if (map->cmp_func(map->data[i]->key, key)) {
       return &map->data[i];
     }
   };
@@ -209,7 +234,7 @@ MapIter map_iter_begin(Map *map) {
   size_t i = 0;
   for (; i < map->data_size && map->data[i] == NULL && map->data[i] != map->removed_entry; i++)
     ;
-  return i < map->data_size ? i : SIZE_MAX;
+  return i < map->data_size ? i :  map_iter_end();
 }
 
 MapEntry *map_iter_get(Map *map, MapIter iter) {
