@@ -60,6 +60,9 @@ include $(wildcard *.d)
 run: $(this)
 	$(this) Moscow
 
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all -- $(this) Moscow
+
 clean:
 	rm -f $(obj_files) $(patsubst %.o, %.d, $(obj_files))
 	rm -f $(this)
@@ -78,4 +81,4 @@ info:
 	@echo obj_files: $(obj_files)
 
 
-.PHONY: all clean info run json
+.PHONY: all clean info run json valgrind
