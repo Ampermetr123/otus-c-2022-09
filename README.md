@@ -5,4 +5,7 @@
 
 2. [cp2utf8](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw2)
 
-3. [hashtable (countwords)](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw3)
+3. [hashtable (countwords)](https://github.com/otus-c-2022-09/tree/main/hw3)
+
+4. [weather](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw4)
+
