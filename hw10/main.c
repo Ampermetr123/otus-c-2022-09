@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   }   
   off_t size = st.st_size;
 
-  // Отобржаем  
+  // Отображаем  
   uint8_t *addr = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
   if (addr == MAP_FAILED) {
     exit_with_error("ошибка отображения файла в память (mmap)", fd);
