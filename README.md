@@ -9,5 +9,7 @@
 
 4. [weather](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw4)
 
+10. [daemon](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw9)
+
 10. [mmap/crc32](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw10)
 
