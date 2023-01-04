@@ -363,8 +363,7 @@ int main(int argc, char *argv[]) {
       puts("\nTOP refers: ");
       g_sequence_foreach(top_refers, print_keyval, &counter);
   }
-  
-  g_hash_table_destroy(NULL);
+
   if (sum_url_ht) g_hash_table_destroy(sum_url_ht);
   g_sequence_free(top_urls);
   if (sum_refer_ht) g_hash_table_destroy(sum_refer_ht);
