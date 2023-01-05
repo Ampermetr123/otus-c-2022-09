@@ -97,7 +97,13 @@ void print_keyval(gpointer a, gpointer counter) {
   g_print("%s -> %ld\n", ((const KeyVal *)(a))->key, ((const KeyVal *)(a))->val);
 }
 
-void on_destroy_keyval(gpointer a) { g_free(((KeyVal *)(a))->key); }
+void on_destroy_keyval(gpointer a) { 
+  if (a){
+    g_free(((KeyVal *)(a))->key); 
+    g_free(a);
+  }
+}
+
 
 
 /** Выборка ТОП самых больших по значению элементов из хеш таблицы в последовательнось */
@@ -332,22 +338,21 @@ int main(int argc, char *argv[]) {
   for (guint i = 0; i < thread->len; i++) {
     GThread *thr = (GThread *)g_ptr_array_index(thread, i);
     res = (ThreadResult *)g_thread_join(thr);
-    g_thread_unref(thr);
     if (!res) {
       break; // поток завершился с ошибкой.
     }
+    sum_trafic += res->total_trafic;
     if (sum_refer_ht == NULL || sum_url_ht == NULL) {
       sum_refer_ht = res->refer_ht;
       sum_url_ht = res->url_ht;
     } else {
-      // обединяем таблицы
+      // объединяем таблицы
       g_hash_table_foreach_remove(res->url_ht, ht_iter_move_to_ht, sum_url_ht);
       g_hash_table_destroy(res->url_ht);
       g_hash_table_foreach_remove(res->refer_ht, ht_iter_move_to_ht, sum_refer_ht);
       g_hash_table_destroy(res->refer_ht);
-      g_free(res);
     }
-    sum_trafic += res->total_trafic;
+    g_free(res);
   }
   if (res != NULL){
       // Выбираем из хеш таблиц топ STAT_SIZE записей
@@ -370,5 +375,6 @@ int main(int argc, char *argv[]) {
   g_sequence_free(top_refers);
   g_ptr_array_set_free_func(files_ar, g_free);
   g_ptr_array_free(files_ar, TRUE);
+  g_ptr_array_free(thread, TRUE);
   return (res != NULL) ? EXIT_SUCCESS: EXIT_FAILURE;
 }
