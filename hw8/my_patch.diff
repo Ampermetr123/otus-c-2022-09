@@ -1,0 +1,12 @@
+--- clib/src/common/clib-package.c.old	2020-09-08 02:51:23.000000000 +0300
++++ clib/src/common/clib-package.c	2023-01-05 21:31:31.393509939 +0300
+@@ -654,6 +654,9 @@
+     if (retries-- <= 0) {
+       goto error;
+     } else {
++      if (res) {
++        http_get_free(res);
++      }
+ #ifdef HAVE_PTHREADS
+       init_curl_share();
+       _debug("GET %s", json_url);
