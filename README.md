@@ -13,3 +13,5 @@
 
 10. [mmap/crc32](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw10)
 
+10. [http parser/multy threads](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw11)
+
