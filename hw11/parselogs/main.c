@@ -138,16 +138,6 @@ gboolean ht_iter_move_to_seq(gpointer key, gpointer value, gpointer user_data) {
  *                             HASH TABLE HELPERS                              *
  *******************************************************************************/
 
-void ht_insert_with_increment(GHashTable *ht, gpointer key, gpointer value) {
-  gpointer stored_val = g_hash_table_lookup(ht, key);
-  if (stored_val == NULL) {
-    g_hash_table_insert(ht, key, value);
-  } else {
-    unsigned long val = PTR_TO_ULONG(stored_val) + PTR_TO_ULONG(value);
-    g_hash_table_insert(ht, key, ULONG_TO_PTR(val));
-  }
-}
-
 void ht_insert_dupkey_with_increment(GHashTable *ht, gpointer key, gpointer value) {
   gpointer stored_val = g_hash_table_lookup(ht, key);
   if (stored_val == NULL) {
@@ -160,10 +150,16 @@ void ht_insert_dupkey_with_increment(GHashTable *ht, gpointer key, gpointer valu
 
 gboolean ht_iter_move_to_ht(gpointer key, gpointer value, gpointer userdata) {
   GHashTable *ht = (GHashTable *)(userdata);
-  ht_insert_with_increment(ht, key, value);
+  gpointer stored_val = g_hash_table_lookup(ht, key);
+  if (stored_val == NULL) {
+    g_hash_table_insert(ht, key, value);
+  } else {
+    unsigned long val = PTR_TO_ULONG(stored_val) + PTR_TO_ULONG(value);
+    g_hash_table_insert(ht, key, ULONG_TO_PTR(val));
+    g_free(key);
+  }
   return true;
 }
-
 
 /*******************************************************************************
  *                              PROCESSING THREAD                              *
@@ -257,6 +253,10 @@ void *thread_process(void *data) {
   } // while
   return res;
 }
+
+/*******************************************************************************
+ *                                    MAIN                                     *
+ *******************************************************************************/
 
 // Параметры командной строки (значения по умолчанию)
 const char *dir_path = ".";
