@@ -15,5 +15,5 @@
 
 6. [http parser/multy threads](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw11)
 
-7. [telehack] (https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw12)
+7. [telehack](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw12)
 
