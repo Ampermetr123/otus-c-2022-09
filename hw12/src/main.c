@@ -17,15 +17,8 @@
 #define SERVER_URL "telehack.com"
 #define SERVER_SERVICE "telnet"
 
-
-#define _unused_ __attribute__((unused))
-
-/*******************************************************************************
- *                                    MAIN                                     *
- *******************************************************************************/
-
 // Параметры командной строки (значения по умолчанию)
-const char *text = "Hello world!";
+const char *text = "C PO*DECTBOM!";
 const char *font = "";
 
 void print_usage(char *prog_name) {
@@ -61,7 +54,7 @@ int main(int argc, char *argv[]) {
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
-  //hints.ai_flags = AI_ADDRCONFIG;
+  hints.ai_flags = AI_ADDRCONFIG;
 
 
   int res = getaddrinfo(SERVER_URL, SERVER_SERVICE, &hints, &addr_info);
@@ -76,7 +69,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  struct timeval tv = {.tv_sec = 0, .tv_usec = 500000};
+  struct timeval tv = {.tv_sec = 1, .tv_usec = 0};
   if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof tv) != 0) {
     perror("setsockopt:");
     close(sock);
@@ -88,11 +81,12 @@ int main(int argc, char *argv[]) {
     freeaddrinfo(addr_info);
     return EXIT_FAILURE;
   }
-  
-  { // Чтение до приглашения
+
+  // Чтение до приглашения
+  {                               
     uint8_t buf[2] = {'\n', '.'}; // строка приглашение
     const int buf_sz = sizeof(buf) / sizeof(char);
-    int i = 0;1,
+    int i = 0;
     uint8_t ch;
     uint tryes = 3;
     int count = 0;
@@ -112,64 +106,72 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "отстутствует приглашение от сервера\n");
       goto onerror;
     }
-    puts("ok");
+    //puts("connected");
   }
 
-  
-   // Запрос
-    const char *cmd = "figlet";
-    int req_len = strlen(cmd) + 2 + strlen(font) + 1 + strlen(text) + 2 + 1;
-    char *req = (char *)malloc(req_len);
-    if (!req) {
-      fprintf(stderr, "Ошибка памяти");
-      goto onerror;
+  // Запрос
+  const char *cmd = "figlet";
+  int req_len = strlen(cmd) + 2 + strlen(font) + 1 + strlen(text) + 2 + 1;
+  char *req = (char *)malloc(req_len);
+  if (!req) {
+    fprintf(stderr, "Ошибка памяти");
+    goto onerror;
+  }
+  if (strlen(font))
+    req_len = snprintf(req, req_len, "%s /%s %s\r\n", cmd, font, text);
+  else
+    req_len = snprintf(req, req_len, "%s %s\r\n", cmd, text);
+  int sent = 0;
+  do {
+    sent = send(sock, req + sent, req_len - sent, 0);
+    if (sent < 0 && errno != EINTR) {
+      perror("send");
+      break;
     }
-    if (strlen(font))
-      req_len = snprintf(req, req_len, "%s /%s %s\r\n", cmd, font, text);
-    else
-      req_len = snprintf(req, req_len, "%s %s\r\n", cmd, text);
-    int sent = 0;
-    do {
-      sent = send(sock, req + sent, req_len - sent, 0);
-      if (sent < 0 && errno != EINTR) {
-        perror("send");
-        break;
-      }
-    } while (sent < req_len - sent);
-    free(req);
-    if (sent < req_len) {
-      goto onerror;
-    }
-  
+  } while (sent < req_len - sent);
+  free(req);
+  if (sent < req_len) {
+    goto onerror;
+  }
 
   // Ответ
-    Buffer answer = {NULL, 0, 0};
-    uint8_t buf[1024];
-    int ret;
-    int received=0;
-    do{ 
-      ret = recv(sock,buf,1024-1,0);
-      if (ret>0)
-      {
-          if (received > req_len){
-            buf[ret]='\0';
-            printf("%s", buf);
-          } else if (received + ret > req_len){
-            buf[ret]='\0';
-            printf("%s", buf+req_len-received);
-          }
-          received+=ret;
+  Buffer answer = {NULL, 0, 0};
+  uint8_t buf[1024];
+  int ret;
+  int received = 0;
+  do {
+    ret = recv(sock, buf, 1024, 0);
+    if (ret > 0) {
+      if (received > req_len) {
+        if (!buffer_append(&answer, buf, ret)) {
+          fprintf(stderr, "Memory error");
+          goto onerror;
+        };
+      } else if (received + ret > req_len) {
+        if (!buffer_append(&answer, buf + req_len - received, ret - req_len + received)) {
+          fprintf(stderr, "Memory error");
+          goto onerror;
+        }
       }
-    } while (ret>=0 || (ret<0 && errno == EINTR));
-  
+      received += ret;
+    }
+  } while (ret >= 0 || (ret < 0 && errno == EINTR));
 
+  if (answer.data_size > 1) {
+    ((char *)(answer.data))[answer.data_size - 1] = '\0'; // заменяем точку концом строки
+    puts(answer.data);
+  } else {
+    fprintf(stderr, "no answer from " SERVER_URL "\n");
+    goto onerror;
+  }
+  buffer_free(&answer);
   shutdown(sock, SHUT_RDWR);
   close(sock);
   freeaddrinfo(addr_info);
-
   return EXIT_SUCCESS;
 
 onerror:
+  buffer_free(&answer);
   shutdown(sock, SHUT_RDWR);
   close(sock);
   freeaddrinfo(addr_info);
