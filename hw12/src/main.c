@@ -98,7 +98,6 @@ int main(int argc, char *argv[]) {
         if (i == buf_sz)
           break;
       } else {
-        perror("recv: ");
         tryes--;
       }
     }
@@ -106,7 +105,6 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "отстутствует приглашение от сервера\n");
       goto onerror;
     }
-    //puts("connected");
   }
 
   // Запрос
