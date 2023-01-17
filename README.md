@@ -9,9 +9,11 @@
 
 4. [weather](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw4)
 
-10. [daemon](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw9)
+4. [daemon](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw9)
 
-10. [mmap/crc32](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw10)
+5. [mmap/crc32](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw10)
 
-10. [http parser/multy threads](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw11)
+6. [http parser/multy threads](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw11)
+
+7. [telehack](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw12)
 
