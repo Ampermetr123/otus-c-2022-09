@@ -1,0 +1,31 @@
+{
+  "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+  "files.associations": {
+    "stat.h": "c",
+    "crc32.h": "c",
+    "mman.h": "c"
+  },
+  
+  "makefile.configurations": [
+    {
+      "name": "debug",
+      "makeArgs": [],
+      "problemMatchers": [
+        "$gcc",
+        "$msvc"
+      ],
+    },
+    {
+      "name": "release",
+      "makeArgs": [
+        "BUILDTYPE=release"
+      ],
+      "problemMatchers": [
+        "$gcc",
+        "$msvc"
+      ]
+    }
+  ]
+
+}
+
