@@ -30,9 +30,7 @@ free_cb:
    ; rdi указатель на структуру
     mov r14, rsp ; align stack
     and rsp, -16 ;
-
     call free 
-   
     mov rsp, r14
     ret
 
@@ -119,7 +117,6 @@ ff: ; реуксисный вызов f() для следующего элеме
     mov rdi, [rbx + 8]
     mov rdx, r13
     call f
-
     pop r13
     pop r12
     pop rbx
@@ -130,7 +127,6 @@ outf:
 ;;; main proc
 main:
     push rbx ; вызов функции
-
     xor rax, rax ; a=0
     mov rbx, data_length ; j=data_length
 adding_loop:
@@ -175,6 +171,5 @@ adding_loop:
     call m
 
     pop rbx
-
     xor rax, rax
     ret

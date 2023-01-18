@@ -3,7 +3,7 @@ AS = nasm  # NOTE: yasm тоже подойдёт
 all: asm-prog c-prog
 
 c-prog: reverse.c
-	$(CC) -Wall -Wextra -Wpedantic -std=c11 $^ -o $@
+	$(CC) -Wall -Wextra -Wpedantic -std=c11 -g $^ -o $@
 
 asm-prog: main.o
 	$(CC) -no-pie $^ -o $@
