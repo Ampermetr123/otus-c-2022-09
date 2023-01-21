@@ -1,0 +1,5 @@
+set(This test_sflog)
+add_executable(${This} main.c)
+# get_target_property(sflog_include sflog INCLUDE_DIRECTORIES)
+# target_include_directories(${This} PRIVATE ${sflog_include})
+target_link_libraries(${This} PRIVATE sflog)
