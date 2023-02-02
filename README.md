@@ -9,6 +9,8 @@
 
 4. [weather](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw4)
 
+5. [gstreamer plugin](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw5)
+
 6. [logger](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw6)
 
 7. [asm_to_c](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw7)
