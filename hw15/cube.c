@@ -109,7 +109,7 @@ void render() {
 
 
 static void release() {
-  if (gContext){
+  if (gContext) {
     SDL_GL_DeleteContext(gContext);
     gContext = NULL;
   }
@@ -129,15 +129,17 @@ int main() {
   }
 
   bool quit = false;
-  SDL_Event e;
-  // While application is running
+  SDL_Event event;
+  SDL_StartTextInput();
+
   while (!quit) {
     // Handle events on queue
-    while (SDL_PollEvent(&e) != 0) {
+    while (SDL_PollEvent(&event) != 0) {
       // User requests quit
-      if (e.type == SDL_QUIT) {
+      if (event.type == SDL_QUIT) {
         quit = true;
-        puts("good bye!");
+      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+        quit = true;
       }
     }
     angle = angle + 1 % 360;
@@ -145,6 +147,8 @@ int main() {
     render();
     SDL_GL_SwapWindow(gWindow);
   }
-  release();  // Free resources and close SDL
+  SDL_StopTextInput();
+
+  release(); // Free resources and close SDL
   return EXIT_SUCCESS;
 }
