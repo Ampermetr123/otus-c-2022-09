@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(cube LANGUAGES C)
-
-find_package(PkgConfig REQUIRED) 
-pkg_check_modules(PQ REQUIRED libpq)
 set(This getstat)
-
 add_executable(${This} main.c)
-target_include_directories(${This} PUBLIC ${PQ_INCLUDE_DIRS} )
-target_link_libraries(${This} PUBLIC ${PQ_LIBRARIES} )
+execute_process(COMMAND pg_config --pkgincludedir OUTPUT_VARIABLE PG_INCLUDE_DIR)
+target_include_directories(${This} PUBLIC ${PG_INCLUDE_DIR} )
+target_link_libraries(${This} pq)
 target_compile_options(${This} PUBLIC -Wall -Wextra -Wpedantic -std=gnu11)
