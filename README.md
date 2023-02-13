@@ -25,6 +25,8 @@
 
 12. [telehack](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw12)
 
+14. [libpq](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw14)
+
 15. [3d cube](https://github.com/Ampermetr123/otus-c-2022-09/tree/main/hw15)
 
 
