@@ -34,8 +34,7 @@ static bool load_target(int argc, char *argv[], Target *t);
 static PGconn *connect_to_db(Target *tg);
 static PGresult *exec_stat_column_query(PGconn *conn, Target *tg);
 static void __attribute__((noreturn)) exit_on_pq_error(PGconn *conn);
-static void print_1st_tuple(PGresult * res);
-
+static void print_tuple(PGresult * res, size_t row);
 
 int main(int argc, char *argv[]) {
   Target tg;
@@ -50,11 +49,12 @@ int main(int argc, char *argv[]) {
 
   PGresult *res = exec_stat_column_query(conn, &tg);
   if (res==NULL ||PQresultStatus(res) != PGRES_TUPLES_OK) {
+    PQclear(res);
     exit_on_pq_error(conn);
   }
-
-  print_1st_tuple(res);
-
+  print_tuple(res, 0);
+  PQclear(res);
+  PQfinish(conn);
   return EXIT_SUCCESS;
 }
 
@@ -110,11 +110,11 @@ static PGresult *exec_stat_column_query(PGconn *conn, Target *tg) {
 }
 
 
-static void print_1st_tuple(PGresult * res){
+static void print_tuple(PGresult * res, size_t row){
   int ncols = PQnfields(res);
   for (int i = 0; i < ncols; i++) {
     char *name = PQfname(res, i);
-    char *val = PQgetvalue(res, 0, i);
+    char *val = PQgetvalue(res, row, i);
     printf(" %s = %s \n", name, val);
   }
   printf("\n");
