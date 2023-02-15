@@ -34,7 +34,7 @@ static bool load_target(int argc, char *argv[], Target *t);
 static PGconn *connect_to_db(Target *tg);
 static PGresult *exec_stat_column_query(PGconn *conn, Target *tg);
 static void __attribute__((noreturn)) exit_on_pq_error(PGconn *conn);
-static void print_tuple(PGresult *res, size_t row);
+static void print_tuple(PGresult *res, int row);
 
 int main(int argc, char *argv[]) {
   Target tg;
@@ -110,7 +110,7 @@ static PGresult *exec_stat_column_query(PGconn *conn, Target *tg) {
 }
 
 
-static void print_tuple(PGresult *res, size_t row) {
+static void print_tuple(PGresult *res, int row) {
   if (res && row < PQntuples(res)) {
     int ncols = PQnfields(res);
     for (int i = 0; i < ncols; i++) {
