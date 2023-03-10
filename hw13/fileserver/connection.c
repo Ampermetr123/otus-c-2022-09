@@ -18,6 +18,7 @@ static const char *msg200 = "HTTP/1.1 200 ОК\r\nConnection: close";
 static const char *msg403 = "HTTP/1.1 403 Forbidden\r\nConnection: close";
 static const char *msg404 = "HTTP/1.1 404 Not Found\r\nConnection: close";
 static const char *msg405 = "HTTP/1.1 405 Method Not Allowed\r\nConnection: close";
+static const char *msg414 = "HTTP/1.1 414 URI Too Long\r\nConnection: close";
 static const char *msg500 = "HTTP/1.1 500 Internal Server Error\r\nConnection: close";
 static const char *msg505 = "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close";
 static const char *http_request_end = "\r\n\r\n";
@@ -70,6 +71,7 @@ typedef enum {
   open_res_eacess, // нет прав доступа
   open_res_not_regular,
   open_res_not_found,
+  open_res_name_too_long,
   open_res_other_error
 } open_res;
 /**
@@ -84,6 +86,9 @@ static open_res open_regular_file(const char *path, int *fd, off_t *file_size) {
       return open_res_eacess;
     if (errno == ENOENT)
       return open_res_not_found;
+    if (errno == ENAMETOOLONG)
+      return open_res_name_too_long;
+    sfl_error("stat error: %s", strerror(errno));
     return open_res_other_error;
   }
   if (!S_ISREG(st.st_mode)) {
@@ -92,7 +97,7 @@ static open_res open_regular_file(const char *path, int *fd, off_t *file_size) {
 
   int loc_fd = open(path, O_RDONLY);
   if (loc_fd < 0) {
-    sfl_debug("Unexpected error on open file '%s': %s", path, strerror(errno));
+    sfl_error("error on open file '%s': %s", path, strerror(errno));
     return open_res_other_error;
   }
   *fd = loc_fd;
@@ -143,6 +148,8 @@ const char *parse_http_head(char *request, const char *basedir, int *fd, off_t *
     return msg403;
   case open_res_not_found:
     return msg404;
+  case open_res_name_too_long:
+    return msg414;
   default:
     return msg500;
   };
