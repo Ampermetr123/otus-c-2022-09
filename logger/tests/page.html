@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Troll logger viewer</title>
+</head>
+
+<body>
+  <script type="text/javascript">
+    function add_message_to_table(msg) {
+      table = document.getElementById("msg_table");
+      var tr = document.createElement("tr"),
+        tdMsg = document.createElement("td");
+      tdMsg.textContent = msg;
+      tr.appendChild(tdMsg);
+      table.appendChild(tr);
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      const evtSource = new EventSource("events");
+      evtSource.onmessage = (event) => {
+        add_message_to_table(`${event.data}`);
+      }
+      add_message_to_table("Hello my little pony!");
+    })        
+  </script>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Messages</th>
+        <!-- <th scope="col">Price</th> -->
+      </tr>
+    </thead>
+    <tbody id="msg_table">
+    </tbody>
+  </table>
+</body>
+</html>
