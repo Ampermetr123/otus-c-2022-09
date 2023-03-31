@@ -21,7 +21,6 @@ static const char* html_index= "<!DOCTYPE html>\n\
       evtSource.onmessage = (event) => {\n\
         add_message_to_table(`${event.data}`);\n\
       }\n\
-      add_message_to_table(\"Hello my little pony!\");\n\
     })        \n\
   </script>\n\
 \n\
