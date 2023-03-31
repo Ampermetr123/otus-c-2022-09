@@ -21,9 +21,6 @@
 #define PIPE_QUEUE_SIZE 0x2000
 
 
-
-
-
 static CQueue *msg_storage = NULL;
 static CQueue *pipe_cq = NULL;
 int pipe_event_fd = -1;
@@ -40,7 +37,6 @@ troll_status troll_init(const char *addr, unsigned mem_size) {
   dprint("troll_init()");
   if (intitilized)
     return ts_already_initialised;
-
   if (mem_size < MINIMUM_MEM_SIZE)
     return ts_invalid_argument;
 
@@ -204,7 +200,6 @@ void troll_print(int level, const char *level_name, const char *level_format, co
 
   // Резервируем буфер  
 
-
   int push_ret = cq_push(pipe_cq, NULL, sizeof(LogMsg) + max_body_len);
   if (push_ret == cq_res_lost_tail) {
     // Асинхронный поток не вычитывает очередь? 
@@ -306,7 +301,6 @@ static void *troll_thread( __attribute__((unused)) void *ptr) {
           count--;
           it = cq_next(pipe_cq, it); 
         }
-   
 
         count = len;
         pthread_mutex_lock(&pipe_mtx);
@@ -326,12 +320,11 @@ static void *troll_thread( __attribute__((unused)) void *ptr) {
           troll_on_ready_read(pconn);
         if (events[i].events & EPOLLOUT)
           troll_on_ready_write(pconn);
-        if (events[i].events & (EPOLLHUP | EPOLLRDHUP)) {
+        if ( (events[i].events & (EPOLLHUP | EPOLLRDHUP)) 
+            || troll_get_conn_state(pconn) == state_end
+            || run_flag == false) {
           connections_count = troll_terminate_connection(&events[i], epoll_fd);
-        }
-        if (!run_flag || troll_get_conn_state(pconn) == state_end) {
-          connections_count = troll_terminate_connection(&events[i], epoll_fd);
-        }
+        } 
       }
     }
 
@@ -342,14 +335,3 @@ static void *troll_thread( __attribute__((unused)) void *ptr) {
   troll_release();
   return NULL;
 }
-
-
-/** В будущем мы будем сохранять в памяти не готовую к записи строку, а некоторую структуру*/
-// struct CachedMsg {
-//   // int size time
-//   // level
-//   // seialized list of {next, fmt_size, arg_size, arg, fmt};
-// };
-
-// static int store_msg(char* dest, int max_size, const char* fmt, ... );
-// static int restore_msg(char *dets, struct CachedMsg* src);

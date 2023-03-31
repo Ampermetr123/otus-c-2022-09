@@ -2,8 +2,6 @@
 
 #include "cqueue.h"
 #include "logmsg.h"
-#include <pthread.h>
-
 #include <sys/epoll.h>
 
 #define MAX_CONNECTIONS 5
@@ -18,17 +16,10 @@ typedef enum  {
   state_end
 } ConnState;
 
-// typedef struct {
-//   //pthread_rwlock_t rwlock;
-//   CQueue * mcq;
-// } MsgSharedStorage;
-
 
 int troll_accept_connections(int listen_fd, int epoll_fd, CQueue* storage);
 
 int troll_terminate_connection(struct epoll_event *ev, int epoll_fd);
-
-int troll_get_conn_fd(Connection* conn);
 
 ConnState troll_get_conn_state(Connection* conn);
 

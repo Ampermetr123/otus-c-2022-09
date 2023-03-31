@@ -35,10 +35,7 @@ static void send_error(Connection *conn, const char *err_answer);
 
 
 static const char *msg200 = "HTTP/1.1 200 ОК";
-// static const char *msg403 = "HTTP/1.1 403 Forbidden\r\nConnection: close";
-// static const char *msg404 = "HTTP/1.1 404 Not Found\r\nConnection: close";
 static const char *msg405 = "HTTP/1.1 405 Method Not Allowed\r\nConnection: close\r\n\r\n";
-// static const char *msg414 = "HTTP/1.1 414 URI Too Long\r\nConnection: close";
 static const char *msg500 = "HTTP/1.1 500 Internal Server Error\r\nConnection: close\r\n\r\n";
 static const char *msg505 = "HTTP/1.1 505 HTTP Version Not Supported\r\nConnection: close\r\n\r\n";
 static const char *http_request_end = "\r\n\r\n";
@@ -81,14 +78,7 @@ void check_storage(CQueue *cq) {
     it = cq_next(cq, it);
   };
 }
-// bool troll_any_conn_of_state(ConnState state) {
-//   for (int i = 0; i < MAX_CONNECTIONS; i++) {
-//     if (connections[i] && connections[i]->state == state) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
+
 
 bool troll_any_conn_send_storage() {
   for (int i = 0; i < MAX_CONNECTIONS; i++) {
@@ -141,32 +131,9 @@ static bool split_http_head(char *request, char **method, char **target, char **
   return i == 3;
 }
 
-
-/**
- * @brief Проверяет протокол и метод
- * @param httphead - NULL-терминатеd HTTP запрос
- * @return NULL, при успехе или указатель на строку с http ответом об ошибке
- */
-
-// static const char *parse_http_head(char *request) {
-//   char *method, *target, *httpver;
-//   if (!split_http_head(request, &method, &target, &httpver)) {
-//     return msg500;
-//   }
-//   if (strcmp(httpver, "HTTP/1.1") != 0) {
-//     return msg505;
-//   }
-//   if (strcmp(method, "GET") != 0) {
-//     return msg405;
-//   }
-//   return NULL;
-// }
-
-
 /*******************************************************************************
  *                            CONNECTION PROCESSING                            *
  *******************************************************************************/
-
 
 Connection *troll_new_conn(int conn_fd, CQueue *storage) {
   Connection *conn = calloc(1, sizeof(Connection));
@@ -187,11 +154,6 @@ ConnState troll_get_conn_state(Connection *conn) {
   assert(conn);
   return conn ? conn->state : state_end;
 }
-
-
-// int fs_get_conn_fd(Connection *conn) {
-//   return conn ? conn->conn_fd : -1;
-// }
 
 
 int troll_accept_connections(int listen_fd, int epoll_fd, CQueue *storage) {
@@ -230,6 +192,7 @@ int troll_accept_connections(int listen_fd, int epoll_fd, CQueue *storage) {
   return conn_count;
 }
 
+
 void append_message(Connection *conn, LogMsg *msg, unsigned len) {
   if (!buffer_reserve(&conn->answer, len + 64)) {
     dprint("memory allocation error on  %s:%d", __FILE__, __LINE__);
@@ -247,6 +210,7 @@ void append_message(Connection *conn, LogMsg *msg, unsigned len) {
   buffer_clear(&conn->answer);
 }
 
+
 int troll_terminate_connection(struct epoll_event *ev, int epoll_fd) {
   Connection *conn = ev->data.ptr;
   int i = get_conn_index(conn);
@@ -259,6 +223,7 @@ int troll_terminate_connection(struct epoll_event *ev, int epoll_fd) {
   }
   return conn_count;
 }
+
 
 void troll_terminate_all_connections(int epoll_fd) {
   for (int i = 0; i < MAX_CONNECTIONS; i++) {
@@ -273,26 +238,6 @@ void troll_terminate_all_connections(int epoll_fd) {
   }
 }
 
-// static void send_file(Connection *conn) {
-//   assert(conn);
-//   assert(conn->state == state_sending_file);
-//   if (conn->state != state_sending_file)
-//     return;
-//   off_t sz_to_send = conn->file_size - conn->file_bytes_sent;
-//   ssize_t sz_sent = 0;
-//   if (sz_to_send > 0) {
-//     sz_sent = sendfile(conn->conn_fd, conn->file_fd, NULL, sz_to_send);
-//     if (sz_sent < 0 && errno != EAGAIN) {
-//       sfl_error("sendfile() error: %s", strerror(errno));
-//     } else {
-//       conn->file_bytes_sent += sz_sent;
-//       sfl_debug("file sent %ld/%ld", conn->file_bytes_sent, conn->file_size);
-//     }
-//   }
-//   if (conn->file_bytes_sent >= conn->file_size) {
-//     conn->state = state_end;
-//   }
-// }
 
 static void start_send_storage(Connection *conn) {
   buffer_clear(&conn->answer);
@@ -323,7 +268,7 @@ static void send_storage(Connection *conn) {
   };
 
   while (conn->cq_iter != NULL) {
-    char *logmsg;
+    const char *logmsg;
     unsigned logmsg_len;
     if (cq_get(conn->storage, conn->cq_iter, &logmsg, &logmsg_len) != cq_res_ok) {
       dprint("sotrage corupted!");
@@ -423,6 +368,7 @@ void troll_on_ready_read(Connection *conn) {
   }
 }
 
+
 static void send_error(Connection *conn, const char *err_answer) {
   if (!err_answer)
     return;
@@ -433,6 +379,7 @@ static void send_error(Connection *conn, const char *err_answer) {
   }
   start_send_answer(conn, state_end);
 }
+
 
 static void method_get_handler(Connection *conn, const char *target) {
   if (strcmp(target, "/events") == 0) {
@@ -456,6 +403,7 @@ static void method_get_handler(Connection *conn, const char *target) {
     start_send_answer(conn, state_wait_request);
   }
 }
+
 
 static void method_post_handler(Connection *conn) { dprint("TODO: processing POST method"); }
 
