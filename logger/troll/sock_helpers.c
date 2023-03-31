@@ -60,7 +60,7 @@ bool parse_ipv4_endpoint(const char *str, uint32_t *addr, uint16_t *port, char *
  * @return true, on success
  * @note check errno for error details
  */
-int make_binded_socket(const char *bind_address) {
+int make_bound_socket(const char *bind_address) {
   uint32_t addr = htonl(INADDR_ANY);
   uint16_t port = 0;
 

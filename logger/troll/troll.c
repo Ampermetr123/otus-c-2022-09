@@ -53,7 +53,7 @@ troll_status troll_init(const char *addr, unsigned mem_size) {
 
   intitilized = true;
 
-  listenfd = make_binded_socket(addr);
+  listenfd = make_bound_socket(addr);
   if (listenfd < 0) {
     dprint("error bind socket: %s", strerror(errno));
     troll_release();
