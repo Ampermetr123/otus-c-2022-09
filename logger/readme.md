@@ -1,19 +1,17 @@
 #  Tranparent On-Line Logger (TROLL)
 
-`troll` - library src 
-`examples` - examples how to use
-`test`  - some tests with Gtest framework
+- `troll` - library src 
+- `examples` - examples how to use
+- `test`  - some tests with Gtest framework
 
 
 ## What is TROLL about
- Troll logger embeds hhtp server and memory circular storage
- to keep and show recent log messages on line 
- via http protocol.
-
+ Troll embedds http server and memory storage to your programm 
+ to keep recent log messages and show it  via browser.
 
 ## How to use
 
-1. include `troll.h`
+1. Link library and include `troll.h`
 ```
 #inlcude "troll.h"
 ```
@@ -32,27 +30,27 @@
 #include "troll_reg_level.h"
 ```
 
-After that you can use printf-like
-`troll_{category}` functionm where `category` is the name of defined category.
-
-
-3. Start internal server before use
+3. Start internal server:
 ```
 troll_init("127.0.0.1:19999", 2048); 
 ```
+
 `"127.0.0.1:19999"` - is troll server address
 `2048` - is size of buffer, where stored logg messages
 
-4. use it
+
+4. Now you can use printf-like function to log messages with
+`troll_{category}` function (`category` is the name of defined category).
+
 ```
  troll_info("Hello world %d!", i);
 ```
 
-5. don't forget to release when program terminates
+5. Don't forget to stop serever and free resources when program is terminating
 ```
 troll_release(); 
 ```
 
-6. while you programm is running you can 
+6. While your programm is running you can 
 see all recent messages on-line via browser 
 `http://127.0.0.1:19999`
